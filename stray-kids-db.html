@@ -140,8 +140,33 @@
     body.mobile-frame-mode #triviaExplorerGrid,
     body.mobile-frame-mode #patronusGalleryGrid,
     body.mobile-frame-mode #wandGalleryGrid,
-    body.mobile-frame-mode #familyMembersGrid {
+    body.mobile-frame-mode #familyMembersGrid,
+    body.mobile-frame-mode #searchControlsSecondaryGrid,
+    body.mobile-frame-mode #facetDropdownsGrid,
+    body.mobile-frame-mode #columnFilterGrid {
       grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    }
+    body.mobile-frame-mode #searchControlsSecondaryGrid > div {
+      grid-column: span 1 / span 1 !important;
+    }
+    #searchInput, #triviaSearchInput, #patronusFilterInput {
+      font-size: 16px !important;
+      line-height: 1.5 !important;
+      min-width: 0 !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    html.dark #searchInput, html.dark #triviaSearchInput, html.dark #patronusFilterInput {
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      caret-color: #fb7185 !important;
+      background-color: #090d16 !important;
+    }
+    html:not(.dark) #searchInput, html:not(.dark) #triviaSearchInput, html:not(.dark) #patronusFilterInput {
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+      caret-color: #e11d48 !important;
+      background-color: #ffffff !important;
     }
     #detailModal > div,
     #editModal > div,
@@ -331,11 +356,36 @@
 
       <!-- Main Search, Dropdown Filters & Sort Controls -->
       <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-md space-y-4">
-        <!-- Row 1: Search Input + Target Field + Sort Controls -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-          <!-- Keyword Search -->
-          <div class="lg:col-span-5 relative flex">
-            <select id="searchFieldSelect" aria-label="検索対象項目" class="rounded-l-lg bg-slate-800 border border-r-0 border-slate-700 text-slate-200 text-xs px-2.5 py-2.5 focus:outline-none focus:border-rose-400">
+        <!-- Row 1: Full-Width Dedicated Keyword Search Box (100% Width on Mobile & PC) -->
+        <div class="w-full space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label for="searchInput" class="text-xs sm:text-sm font-bold text-rose-300 flex items-center gap-1.5">
+              <span>🔍</span>
+              <span>キーワード検索（曲名・アルバム・メンバー・作詞作曲・エピソード）</span>
+            </label>
+            <span id="liveSearchEchoBadge" class="hidden text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-400/50 text-rose-200"></span>
+          </div>
+          <div class="relative w-full">
+            <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-400 text-base select-none">🔍</span>
+            <input id="searchInput" type="text" autocomplete="off" spellcheck="false" placeholder="ここに曲名・メンバー名・アルバム名などを入力…" class="w-full block rounded-xl bg-slate-950 border-2 border-rose-500/60 focus:border-rose-400 focus:ring-2 focus:ring-rose-500/30 pl-10 pr-20 py-3 text-base font-medium text-white placeholder-slate-400 shadow-inner focus:outline-none transition" />
+            <button id="btnClearSearch" type="button" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-rose-600/80 hover:bg-rose-500 text-white text-xs font-bold shadow transition" title="検索語をクリア">✕ クリア</button>
+          </div>
+          <!-- Real-time input mirror bar so typed text is immediately confirmed on-screen -->
+          <div id="liveSearchPreviewBar" class="hidden rounded-lg bg-rose-950/40 border border-rose-500/40 px-3 py-2 text-xs sm:text-sm text-rose-100 flex items-center justify-between gap-2">
+            <div class="truncate">
+              <span class="text-rose-300 font-semibold">入力中の文字:</span>
+              <strong id="liveSearchPreviewText" class="text-white font-bold ml-1 text-sm underline decoration-rose-400"></strong>
+            </div>
+            <span id="liveSearchMatchCount" class="shrink-0 font-mono font-bold text-amber-300 text-xs"></span>
+          </div>
+        </div>
+
+        <!-- Row 2: Search Target Field + Sort Controls + View Mode Switcher -->
+        <div id="searchControlsSecondaryGrid" class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 pt-1">
+          <!-- Search Target Field -->
+          <div class="lg:col-span-4 flex items-center gap-2">
+            <label for="searchFieldSelect" class="text-xs text-slate-400 whitespace-nowrap shrink-0">検索対象:</label>
+            <select id="searchFieldSelect" aria-label="検索対象項目" class="w-full flex-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 focus:outline-none focus:border-rose-400">
               <option value="all">全19項目一括</option>
               <option value="ja">曲名(日本語)</option>
               <option value="ko">曲名(韓国語)</option>
@@ -352,16 +402,12 @@
               <option value="episode">エピソード・制作秘話</option>
               <option value="pv">PVのロケ地</option>
             </select>
-            <div class="relative flex-1">
-              <input id="searchInput" type="text" placeholder="曲名(日/韓/英)・アルバム・メンバー・作詞作曲・エピソード・ロケ地で検索…" class="w-full rounded-r-lg bg-slate-950/90 border border-slate-700 px-3.5 py-2.5 pr-9 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-rose-400" />
-              <button id="btnClearSearch" type="button" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-sm" title="検索語をクリア">✕</button>
-            </div>
           </div>
 
           <!-- Sort Field & Order -->
-          <div class="lg:col-span-4 flex items-center gap-2">
-            <label for="sortFieldSelect" class="text-xs text-slate-400 whitespace-nowrap">並び替え:</label>
-            <select id="sortFieldSelect" class="flex-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2.5 focus:outline-none focus:border-rose-400">
+          <div class="lg:col-span-5 flex items-center gap-2">
+            <label for="sortFieldSelect" class="text-xs text-slate-400 whitespace-nowrap shrink-0">並び替え:</label>
+            <select id="sortFieldSelect" class="flex-1 min-w-0 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 focus:outline-none focus:border-rose-400">
               <option value="id">収録順 (No.001〜No.309)</option>
               <option value="date">発売年月日順</option>
               <option value="richness">エピソード・情報充実度順</option>
@@ -371,13 +417,13 @@
               <option value="category">カテゴリ区分順</option>
               <option value="singer">歌唱メンバー順</option>
             </select>
-            <button id="btnToggleSortDir" type="button" class="px-3 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-rose-300 text-xs sm:text-sm font-semibold whitespace-nowrap transition" title="昇順・降順を切り替え">
+            <button id="btnToggleSortDir" type="button" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-rose-300 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition" title="昇順・降順を切り替え">
               <span id="sortDirText">▲ 昇順</span>
             </button>
           </div>
 
           <!-- View Switcher & Advanced Filter Toggle -->
-          <div class="lg:col-span-3 flex items-center justify-between lg:justify-end gap-2">
+          <div class="lg:col-span-3 flex flex-wrap items-center justify-between lg:justify-end gap-2">
             <div class="inline-flex rounded-lg bg-slate-950 p-1 border border-slate-800" role="group" aria-label="表示形式切替">
               <button type="button" data-view="card" class="view-mode-btn px-2.5 py-1.5 rounded-md text-xs font-semibold bg-rose-500 text-white transition">
                 🃏 カード
@@ -575,8 +621,8 @@
               各楽曲の誕生秘話・3RACHAの制作背景と、MV/PVの実際の撮影ロケ地・公式PVリンク・公式掛け声動画リンクを並べて読み比べできます。
             </p>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <input id="triviaSearchInput" type="text" placeholder="エピソード・ロケ地を検索…" class="rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-rose-400" />
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+            <input id="triviaSearchInput" type="text" placeholder="エピソード・ロケ地を検索…" class="w-full sm:w-64 rounded-xl bg-slate-950 border-2 border-rose-500/50 px-3.5 py-2.5 text-base text-white focus:outline-none focus:border-rose-400" />
             <button id="btnShuffleTrivia" type="button" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-rose-300 text-xs sm:text-sm font-semibold transition">
               🔀 シャッフル表示
             </button>
@@ -605,7 +651,7 @@
               Stray Kids公式YouTubeチャンネルで公開されている全32曲の公式掛け声ガイド動画（Fan Featuring Guide / 응원법）と、映画・アニメ・ドラマ主題歌・CMタイアップ曲を一覧できます。
             </p>
           </div>
-          <input id="patronusFilterInput" type="text" placeholder="曲名・タイアップ・掛け声で絞り込み…" class="rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-sky-400" />
+          <input id="patronusFilterInput" type="text" placeholder="曲名・タイアップ・掛け声で絞り込み…" class="w-full sm:w-72 rounded-xl bg-slate-950 border-2 border-sky-500/50 px-3.5 py-2.5 text-base text-white focus:outline-none focus:border-sky-400" />
         </div>
         <div id="patronusGalleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
           <!-- Populated by JS -->
@@ -3357,6 +3403,8 @@
       document.getElementById('searchInput').value = '';
       document.getElementById('searchFieldSelect').value = 'all';
       document.getElementById('btnClearSearch').classList.add('hidden');
+      document.getElementById('liveSearchPreviewBar')?.classList.add('hidden');
+      document.getElementById('liveSearchEchoBadge')?.classList.add('hidden');
       document.getElementById('filterSeries').value = '';
       document.getElementById('filterSpecies').value = '';
       document.getElementById('filterBlood').value = '';
@@ -3472,18 +3520,39 @@
 
       const searchInput = document.getElementById('searchInput');
       const clearBtn = document.getElementById('btnClearSearch');
-      searchInput.addEventListener('input', e => {
-        state.searchQuery = e.target.value;
-        clearBtn.classList.toggle('hidden', !state.searchQuery);
+      const livePreviewBar = document.getElementById('liveSearchPreviewBar');
+      const livePreviewText = document.getElementById('liveSearchPreviewText');
+      const liveMatchCount = document.getElementById('liveSearchMatchCount');
+      const liveEchoBadge = document.getElementById('liveSearchEchoBadge');
+
+      function syncLiveSearchInput() {
+        const val = searchInput.value || '';
+        state.searchQuery = val;
+        const hasVal = val.length > 0;
+        clearBtn.classList.toggle('hidden', !hasVal);
+        if (livePreviewBar && livePreviewText && liveMatchCount) {
+          livePreviewBar.classList.toggle('hidden', !hasVal);
+          livePreviewText.textContent = val;
+        }
+        if (liveEchoBadge) {
+          liveEchoBadge.classList.toggle('hidden', !hasVal);
+          liveEchoBadge.textContent = hasVal ? `入力中: 「${val}」` : '';
+        }
         state.currentPage = 1;
         renderDirectory();
+        if (liveMatchCount && hasVal) {
+          liveMatchCount.textContent = `該当 ${document.getElementById('resultCountText')?.textContent || 0} 曲`;
+        }
+      }
+
+      ['input', 'keyup', 'compositionupdate', 'compositionend', 'change'].forEach(evtName => {
+        searchInput.addEventListener(evtName, syncLiveSearchInput);
       });
+
       clearBtn.addEventListener('click', () => {
         searchInput.value = '';
-        state.searchQuery = '';
-        clearBtn.classList.add('hidden');
-        state.currentPage = 1;
-        renderDirectory();
+        syncLiveSearchInput();
+        searchInput.focus();
       });
       document.getElementById('searchFieldSelect').addEventListener('change', e => {
         state.searchField = e.target.value;
